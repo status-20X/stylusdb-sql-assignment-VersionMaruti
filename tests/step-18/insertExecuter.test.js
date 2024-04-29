@@ -1,4 +1,4 @@
-const { executeINSERTQuery } = require('../../src/index');
+const { executeINSERTQuery } = require('../../src/queryExecutor');
 const { readCSV, writeCSV } = require('../../src/csvReader');
 const fs = require('fs');
 
@@ -12,22 +12,28 @@ async function createGradesCSV() {
     await writeCSV('grades.csv', initialData);
 }
 
-// Test to INSERT a new grade and verify
-test('Execute INSERT INTO Query for grades.csv', async () => {
-    // Create grades.csv with initial data
-    await createGradesCSV();
+// Define the test suite
+describe('Insert Executer Tests', () => {
+    // This is the beforeEach hook
+    beforeEach(async () => {
+        // Create grades.csv with initial data before each test
+        await createGradesCSV();
+    });
 
-    // Execute INSERT statement
-    const insertQuery = "INSERT INTO grades (student_id, course, grade) VALUES ('4', 'Physics', 'A')";
-    await executeINSERTQuery(insertQuery);
+    // Test to INSERT a new grade and verify
+    test('Execute INSERT INTO Query for grades.csv', async () => {
+        // Execute INSERT statement
+        const insertQuery = "INSERT INTO grades (student_id, course, grade) VALUES ('4', 'Physics', 'A')";
+        await executeINSERTQuery(insertQuery);
 
-    // Verify the new entry
-    const updatedData = await readCSV('grades.csv');
-    const newEntry = updatedData.find(row => row.student_id === '4' && row.course === 'Physics');
-    console.log(updatedData)
-    expect(newEntry).toBeDefined();
-    expect(newEntry.grade).toEqual('A');
+        // Verify the new entry
+        const updatedData = await readCSV('grades.csv');
+        const newEntry = updatedData.find(row => row.student_id === '4' && row.course === 'Physics');
+        console.log(updatedData)
+        expect(newEntry).toBeDefined();
+        expect(newEntry.grade).toEqual('A');
 
-    // Cleanup: Delete grades.csv
-    fs.unlinkSync('grades.csv');
+        // Cleanup: Delete grades.csv
+        fs.unlinkSync('grades.csv');
+    });
 });
